@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Fee Invoice - 수업료 청구서</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Malgun Gothic', 'Arial', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        /* 프린트용 페이지 설정 */
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .invoice-page {
+                page-break-after: always;
+                margin: 0;
+                box-shadow: none;
+                border: none;
+            }
+            
+            .invoice-page:last-child {
+                page-break-after: auto;
+            }
+        }
+        
+        /* 컨트롤 패널 */
+        .control-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            max-width: 1200px;
+            margin: 0 auto 20px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        
+        .input-field {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .input-field label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .input-field input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .input-field input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+        
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        /* Invoice 페이지 */
+        .invoice-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .invoice-page {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            margin: 0 auto 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        /* 헤더 */
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #1e3a8a;
+            padding-bottom: 20px;
+        }
+        
+        .school-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 5px;
+        }
+        
+        .school-name-en {
+            font-size: 18px;
+            color: #4b5563;
+            margin-bottom: 15px;
+        }
+        
+        .invoice-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin: 15px 0 5px 0;
+        }
+        
+        .invoice-title-sub {
+            font-size: 20px;
+            color: #6b7280;
+        }
+        
+        /* 학생 정보 */
+        .student-info {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .student-info h3 {
+            color: #1e3a8a;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 8px;
+        }
+        
+        .info-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: baseline;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #374151;
+            min-width: 120px;
+        }
+        
+        .info-value {
+            color: #1f2937;
+            flex: 1;
+            border-bottom: 1px dotted #d1d5db;
+            padding-bottom: 2px;
+        }
+        
+        /* Fee 테이블 */
+        .fee-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        
+        .fee-table th {
+            background: #1e3a8a;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #1e3a8a;
+        }
+        
+        .fee-table td {
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+        }
+        
+        .fee-table tr:nth-child(even) {
+            background: #f9fafb;
+        }
+        
+        .fee-table .text-right {
+            text-align: right;
+        }
+        
+        .fee-table .text-center {
+            text-align: center;
+        }
+        
+        /* 합계 */
+        .total-section {
+            background: #dbeafe;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 18px;
+        }
+        
+        .total-row.grand-total {
+            border-top: 2px solid #1e3a8a;
+            margin-top: 10px;
+            padding-top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+        
+        /* Footer */
+        .invoice-footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
+        }
+        
+        .signature-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 30px;
+        }
+        
+        .signature-box {
+            text-align: center;
+        }
+        
+        .signature-line {
+            border-top: 2px solid #374151;
+            margin-top: 60px;
+            padding-top: 10px;
+            font-weight: bold;
+        }
+        
+        .invoice-date {
+            text-align: right;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .notes {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #78350f;
+        }
+        
+        .notes strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <!-- 컨트롤 패널 -->
+    <div class="control-panel no-print">
+        <h2 style="margin-bottom: 20px; color: #1e3a8a;">📄 School Fee Invoice Generator</h2>
+        
+        <div class="input-group">
+            <div class="input-field">
+                <label>Student ID (From) 시작 학번:</label>
+                <input type="text" id="studentIdFrom" placeholder="예: 2601001">
+            </div>
+            
+            <div class="input-field">
+                <label>Student ID (To) 종료 학번:</label>
+                <input type="text" id="studentIdTo" placeholder="예: 2601010">
+            </div>
+            
+            <button class="btn btn-primary" onclick="loadData()">📥 Load Data</button>
+            <button class="btn btn-success" onclick="window.print()">🖨️ Print</button>
+        </div>
+        
+        <div id="statusMessage" class="status"></div>
+    </div>
+    
+    <!-- Invoice 컨테이너 -->
+    <div id="invoiceContainer" class="invoice-container"></div>
+    
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzkXNf3DFAqJWBzhIEEA3TM9gah1dPkL_Rd9EHcSmKxI_2dpmVpSdzxYKxPPdScyh4t/exec';
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+            statusDiv.style.display = 'block';
+        }
+        
+        async function loadData() {
+            const idFrom = document.getElementById('studentIdFrom').value.trim();
+            const idTo = document.getElementById('studentIdTo').value.trim();
+            
+            if (!idFrom || !idTo) {
+                showStatus('⚠️ Please enter both Student ID From and To', 'error');
+                return;
+            }
+            
+            showStatus('📡 Loading data from Google Sheets...', 'info');
+            
+            try {
+                const response = await fetch(`${API_URL}?action=getStudentRange&idFrom=${idFrom}&idTo=${idTo}`);
+                const data = await response.json();
+                
+                if (data.success && data.students && data.students.length > 0) {
+                    generateInvoices(data.students);
+                    showStatus(`✅ Successfully loaded ${data.students.length} student(s)`, 'success');
+                } else {
+                    showStatus('❌ No students found in this range', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('❌ Error loading data: ' + error.message, 'error');
+            }
+        }
+        
+        function generateInvoices(students) {
+            const container = document.getElementById('invoiceContainer');
+            container.innerHTML = '';
+            
+            students.forEach((student, index) => {
+                const invoiceHTML = createInvoiceHTML(student, index);
+                container.innerHTML += invoiceHTML;
+            });
+        }
+        
+        function createInvoiceHTML(student, index) {
+            const today = new Date().toLocaleDateString('ko-KR', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            return `
+            <div class="invoice-page">
+                <!-- Header -->
+                <div class="invoice-header">
+                    <div class="school-name">우정캄보디아 간호대학교</div>
+                    <div class="school-name-en">Woojung Cambodia Nursing University</div>
+                    <div class="invoice-title">수업료 청구서</div>
+                    <div class="invoice-title-sub">School Fee Invoice / វិក័យប័ត្រថ្លៃសិក្សា</div>
+                </div>
+                
+                <div class="invoice-date">
+                    <strong>Invoice Date:</strong> ${today}
+                </div>
+                
+                <!-- Student Information -->
+                <div class="student-info">
+                    <h3>학생 정보 (Student Information / ព័ត៌មានសិស្ស)</h3>
+                    <div class="info-row">
+                        <div class="info-item">
+                            <span class="info-label">학번 (Student ID):</span>
+                            <span class="info-value">${student.id}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">이름 (Name):</span>
+                            <span class="info-value">${student.nameKh} / ${student.nameEn}</span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-item">
+                            <span class="info-label">학년 (Year):</span>
+                            <span class="info-value">1학년 (Year 1)</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">전공 (Major):</span>
+                            <span class="info-value">간호학과 (Nursing)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Fee Details Table -->
+                <table class="fee-table">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>항목 (Description / ពិពណ៌នា)</th>
+                            <th class="text-center">학기 (Semester)</th>
+                            <th class="text-right">금액 (Amount / ចំនួនទឹកប្រាក់)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${generateFeeRows(student)}
+                    </tbody>
+                </table>
+                
+                <!-- Total Section -->
+                <div class="total-section">
+                    <div class="total-row">
+                        <span>청구액 (Amount Due):</span>
+                        <span>$${formatNumber(student.feeAmount || 0)}</span>
+                    </div>
+                    <div class="total-row">
+                        <span>수납액 (Amount Received):</span>
+                        <span>$${formatNumber(student.totalReceived || 0)}</span>
+                    </div>
+                    <div class="total-row grand-total">
+                        <span>미수금 (Balance Due / ចំនួននៅសល់):</span>
+                        <span>$${formatNumber(student.outstanding || 0)}</span>
+                    </div>
+                </div>
+                
+                <!-- Notes -->
+                <div class="notes">
+                    <strong>📌 Payment Instructions / ការណែនាំអំពីការទូទាត់:</strong>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>Please pay by the due date to avoid late fees</li>
+                        <li>Payment methods: Bank transfer, Cash, Mobile banking</li>
+                        <li>សូមទូទាត់មុនកាលកំណត់ ដើម្បីជៀសវាងការពិន័យយឺតយ៉ាវ</li>
+                    </ul>
+                </div>
+                
+                <!-- Footer -->
+                <div class="invoice-footer">
+                    <div class="signature-section">
+                        <div class="signature-box">
+                            <div>학생 확인 (Student Signature)</div>
+                            <div class="signature-line">Signature & Date</div>
+                        </div>
+                        <div class="signature-box">
+                            <div>담당자 (Authorized By)</div>
+                            <div class="signature-line">Signature & Stamp</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+        
+        function generateFeeRows(student) {
+            let rows = '';
+            let rowNum = 1;
+            
+            // Year 1
+            if (student.year1_1st > 0 || student.year1_2nd > 0) {
+                rows += `
+                    <tr>
+                        <td>${rowNum++}</td>
+                        <td>1학년 수업료 (Year 1 Tuition Fee)</td>
+                        <td class="text-center">1st Semester</td>
+                        <td class="text-right">$${formatNumber(student.year1_1st || 0)}</td>
+                    </tr>
+                    <tr>
+                        <td>${rowNum++}</td>
+                        <td>1학년 수업료 (Year 1 Tuition Fee)</td>
+                        <td class="text-center">2nd Semester</td>
+                        <td class="text-right">$${formatNumber(student.year1_2nd || 0)}</td>
+                    </tr>
+                `;
+            }
+            
+            // Year 2
+            if (student.year2_1st > 0 || student.year2_2nd > 0) {
+                rows += `
+                    <tr>
+                        <td>${rowNum++}</td>
+                        <td>2학년 수업료 (Year 2 Tuition Fee)</td>
+                        <td class="text-center">1st Semester</td>
+                        <td class="text-right">$${formatNumber(student.year2_1st || 0)}</td>
+                    </tr>
+                    <tr>
+                        <td>${rowNum++}</td>
+                        <td>2학년 수업료 (Year 2 Tuition Fee)</td>
+                        <td class="text-center">2nd Semester</td>
+                        <td class="text-right">$${formatNumber(student.year2_2nd || 0)}</td>
+                    </tr>
+                `;
+            }
+            
+            // Year 3
+            if (student.year3_1st > 0 || student.year3_2nd > 0) {
+                rows += `
+                    <tr>
+                        <td>${rowNum++}</td>
+                        <td>3학년 수업료 (Year 3 Tuition Fee)</td>
+                        <td class="text-center">1st Semester</td>
+                        <td class="text-right">$${formatNumber(student.year3_1st || 0)}</td>
+                    </tr>
+                    <tr>
+                        <td>${rowNum++}</td>
+                        <td>3학년 수업료 (Year 3 Tuition Fee)</td>
+                        <td class="text-center">2nd Semester</td>
+                        <td class="text-right">$${formatNumber(student.year3_2nd || 0)}</td>
+                    </tr>
+                `;
+            }
+            
+            // Year 4
+            if (student.year4_1st > 0 || student.year4_2nd > 0) {
+                rows += `
+                    <tr>
+                        <td>${rowNum++}</td>
+                        <td>4학년 수업료 (Year 4 Tuition Fee)</td>
+                        <td class="text-center">1st Semester</td>
+                        <td class="text-right">$${formatNumber(student.year4_1st || 0)}</td>
+                    </tr>
+                    <tr>
+                        <td>${rowNum++}</td>
+                        <td>4학년 수업료 (Year 4 Tuition Fee)</td>
+                        <td class="text-center">2nd Semester</td>
+                        <td class="text-right">$${formatNumber(student.year4_2nd || 0)}</td>
+                    </tr>
+                `;
+            }
+            
+            if (!rows) {
+                rows = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 20px; color: #6b7280;">
+                            No fee details available
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            return rows;
+        }
+        
+        function formatNumber(num) {
+            return parseFloat(num || 0).toFixed(2);
+        }
+    </script>
+</body>
+</html>
