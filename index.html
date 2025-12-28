@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Fee Invoice Generator - 우정캄보디아 간호대학교</title>
+    <title>School Fee Invoice - 우정캄보디아 간호대학교</title>
     <style>
         * {
             margin: 0;
@@ -111,6 +111,15 @@
             background: #059669;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-home {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-home:hover {
+            background: #4b5563;
         }
 
         .status-message {
@@ -378,6 +387,9 @@
             </div>
 
             <div class="button-group">
+                <button class="btn-home" onclick="window.location.href='index.html'">
+                    <span>🏠</span> Home
+                </button>
                 <button class="btn-load" onclick="loadData()">
                     <span>📊</span> Load Data
                 </button>
@@ -393,7 +405,7 @@
     </div>
 
     <script>
-        // ⚠️ 중요: Google Apps Script 배포 후 받은 웹 앱 URL로 변경하세요!
+        // 실제 Google Apps Script URL
         const API_URL = 'https://script.google.com/macros/s/AKfycbzkXNf3DFAqJWBzhIEEA3TM9gah1dPkL_Rd9EHcSmKxI_2dpmVpSdzxYKxPPdScyh4t/exec';
 
         function showMessage(message, type) {
@@ -419,11 +431,6 @@
 
             if (!idFrom || !idTo) {
                 showMessage('Please enter both Student ID (From) and (To)', 'error');
-                return;
-            }
-
-            if (!API_URL || API_URL === 'https://script.google.com/macros/s/AKfycbzkXNf3DFAqJWBzhIEEA3TM9gah1dPkL_Rd9EHcSmKxI_2dpmVpSdzxYKxPPdScyh4t/exec') {
-                showMessage('⚠️ Please update API_URL with your Google Apps Script URL!', 'error');
                 return;
             }
 
@@ -505,15 +512,15 @@
                     <div class="student-info">
                         <div class="info-title">Student Information / 학생 정보 / ព័ត៌មានសិស្ស</div>
                         <div class="info-row">
-                            <div class="info-label">Student ID / 학번 / លេខសម្គាល់:</div>
+                            <div class="info-label">Student ID / 학번:</div>
                             <div class="info-value">${student.id}</div>
                         </div>
                         <div class="info-row">
-                            <div class="info-label">Name (KH) / 이름 (크메르) / ឈ្មោះ:</div>
+                            <div class="info-label">Name (KH) / 이름:</div>
                             <div class="info-value">${student.nameKh}</div>
                         </div>
                         <div class="info-row">
-                            <div class="info-label">Name (EN) / 이름 (영어) / ឈ្មោះ (អង់គ្លេស):</div>
+                            <div class="info-label">Name (EN) / 이름:</div>
                             <div class="info-value">${student.nameEn}</div>
                         </div>
                     </div>
@@ -522,9 +529,9 @@
                         <thead>
                             <tr>
                                 <th>Description / 항목 / ពណ៌នា</th>
-                                <th style="text-align: right;">Amount Due / 청구액 / ត្រូវបង់</th>
-                                <th style="text-align: right;">Received / 수납액 / បានទទួល</th>
-                                <th style="text-align: right;">Balance / 미수금 / នៅសល់</th>
+                                <th style="text-align: right;">Amount Due / 청구액</th>
+                                <th style="text-align: right;">Received / 수납액</th>
+                                <th style="text-align: right;">Balance / 미수금</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -534,21 +541,21 @@
 
                     <div class="total-section">
                         <div class="total-row">
-                            <span>Total Amount Due / 총 청구액 / ត្រូវបង់សរុប:</span>
+                            <span>Total Amount Due / 총 청구액:</span>
                             <span>${formatCurrency(student.feeAmount)}</span>
                         </div>
                         <div class="total-row">
-                            <span>Total Received / 총 수납액 / បានទទួលសរុប:</span>
+                            <span>Total Received / 총 수납액:</span>
                             <span>${formatCurrency(student.totalReceived)}</span>
                         </div>
                         <div class="total-row grand-total">
-                            <span>Balance Due / 미수금 / នៅសល់:</span>
+                            <span>Balance Due / 미수금:</span>
                             <span>${formatCurrency(student.outstanding)}</span>
                         </div>
                     </div>
 
                     <div class="payment-info">
-                        <strong>Payment Instructions / 납부 안내 / ការណែនាំការទូទាត់:</strong><br>
+                        <strong>Payment Instructions / 납부 안내:</strong><br>
                         Please pay the balance due to the university cashier office.<br>
                         미수금을 학교 회계처에 납부해 주시기 바랍니다.<br>
                         សូមបង់ប្រាក់នៅសល់ទៅការិយាល័យគណនេយ្យរបស់សាកលវិទ្យាល័យ។
