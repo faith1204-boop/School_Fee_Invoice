@@ -1,590 +1,239 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Fee Invoice - 우정캄보디아 간호대학교</title>
+    <title>API Connection Test</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
             padding: 20px;
-            min-height: 100vh;
+            background: #f5f5f5;
         }
-
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .control-panel {
             background: white;
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
         h1 {
-            color: #1e3a8a;
-            margin-bottom: 30px;
-            text-align: center;
-            font-size: 2em;
+            color: #10b981;
         }
-
         .input-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
+            margin: 20px 0;
         }
-
-        .input-field {
-            display: flex;
-            flex-direction: column;
-        }
-
         label {
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #374151;
-            font-size: 0.95em;
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
-
         input {
-            padding: 12px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: all 0.3s;
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
         }
-
-        input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .button-group {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
         button {
-            padding: 12px 30px;
-            font-size: 1em;
-            font-weight: 600;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-load {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .btn-load:hover {
-            background: #2563eb;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
-        }
-
-        .btn-print {
             background: #10b981;
             color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 10px;
         }
-
-        .btn-print:hover {
+        button:hover {
             background: #059669;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
         }
-
-        .btn-home {
-            background: #6b7280;
-            color: white;
-        }
-
-        .btn-home:hover {
-            background: #4b5563;
-        }
-
-        .status-message {
+        .result {
             margin-top: 20px;
             padding: 15px;
-            border-radius: 8px;
-            font-weight: 500;
+            border-radius: 5px;
             display: none;
         }
-
-        .status-message.success {
+        .result.success {
             background: #d1fae5;
-            color: #065f46;
             border: 2px solid #10b981;
+            color: #065f46;
         }
-
-        .status-message.error {
+        .result.error {
             background: #fee2e2;
-            color: #991b1b;
             border: 2px solid #ef4444;
+            color: #991b1b;
         }
-
-        .status-message.info {
-            background: #dbeafe;
-            color: #1e40af;
-            border: 2px solid #3b82f6;
-        }
-
-        .document-container {
-            margin-top: 30px;
-        }
-
-        .invoice-page {
+        .result pre {
             background: white;
-            width: 210mm;
-            min-height: 297mm;
-            margin: 0 auto 30px;
-            padding: 20mm;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-            page-break-after: always;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin-top: 10px;
         }
-
-        .invoice-header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #1e3a8a;
-            padding-bottom: 20px;
-        }
-
-        .school-name {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #1e3a8a;
-            margin-bottom: 5px;
-        }
-
-        .school-name-en {
-            font-size: 1.2em;
-            color: #3b82f6;
-            margin-bottom: 15px;
-        }
-
-        .document-title {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #1e3a8a;
-            margin-top: 15px;
-        }
-
-        .document-title-en {
-            font-size: 1.1em;
-            color: #3b82f6;
-        }
-
-        .document-title-kh {
-            font-size: 1em;
-            color: #6b7280;
-        }
-
-        .invoice-date {
-            text-align: right;
-            margin-bottom: 20px;
-            color: #6b7280;
-        }
-
-        .student-info {
-            background: #f3f4f6;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            border-left: 4px solid #3b82f6;
-        }
-
-        .info-title {
-            font-weight: bold;
-            color: #1e3a8a;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-        }
-
-        .info-row {
-            display: grid;
-            grid-template-columns: 150px 1fr;
-            margin-bottom: 10px;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .info-value {
-            color: #1f2937;
-        }
-
-        .fee-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 25px;
-        }
-
-        .fee-table th {
-            background: #1e3a8a;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        .fee-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .fee-table tr:hover {
-            background: #f9fafb;
-        }
-
-        .fee-table .amount {
-            text-align: right;
-            font-weight: 500;
-        }
-
-        .total-section {
-            background: #eff6ff;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            border: 2px solid #3b82f6;
-        }
-
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }
-
-        .total-row.grand-total {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #1e3a8a;
-            padding-top: 10px;
-            border-top: 2px solid #1e3a8a;
-        }
-
-        .payment-info {
+        .instructions {
             background: #fef3c7;
+            border: 2px solid #f59e0b;
             padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            border-left: 4px solid #f59e0b;
+            border-radius: 5px;
+            margin-bottom: 20px;
         }
-
-        .signature-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 50px;
-            margin-top: 50px;
+        .instructions h3 {
+            margin-top: 0;
+            color: #92400e;
         }
-
-        .signature-box {
-            text-align: center;
-        }
-
-        .signature-line {
-            border-top: 2px solid #000;
-            margin-top: 60px;
-            padding-top: 10px;
-            font-weight: 600;
-        }
-
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-
-            .control-panel {
-                display: none !important;
-            }
-
-            .invoice-page {
-                margin: 0;
-                box-shadow: none;
-                page-break-after: always;
-            }
-
-            .invoice-page:last-child {
-                page-break-after: auto;
-            }
-        }
-
-        @page {
-            size: A4;
-            margin: 15mm;
-        }
-
-        .no-print {
-            display: block;
-        }
-
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #6b7280;
-        }
-
-        .spinner {
-            border: 3px solid #f3f4f6;
-            border-top: 3px solid #3b82f6;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .instructions ol {
+            margin-left: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="control-panel no-print">
-            <h1>📄 School Fee Invoice Generator</h1>
-            
-            <div class="input-group">
-                <div class="input-field">
-                    <label for="idFrom">Student ID (From) 시작 학번:</label>
-                    <input type="text" id="idFrom" placeholder="예: 2601001" value="2601001">
-                </div>
-                <div class="input-field">
-                    <label for="idTo">Student ID (To) 종료 학번:</label>
-                    <input type="text" id="idTo" placeholder="예: 2601001" value="2601001">
-                </div>
-            </div>
-
-            <div class="button-group">
-                <button class="btn-home" onclick="window.location.href='index.html'">
-                    <span>🏠</span> Home
-                </button>
-                <button class="btn-load" onclick="loadData()">
-                    <span>📊</span> Load Data
-                </button>
-                <button class="btn-print" onclick="window.print()">
-                    <span>🖨️</span> Print
-                </button>
-            </div>
-
-            <div id="statusMessage" class="status-message"></div>
+        <h1>🧪 API Connection Test</h1>
+        
+        <div class="instructions">
+            <h3>⚠️ 시작하기 전에</h3>
+            <ol>
+                <li><strong>Google Apps Script 배포 확인</strong>
+                    <ul>
+                        <li>"Who has access" = <strong>"Anyone"</strong> 으로 설정</li>
+                    </ul>
+                </li>
+                <li><strong>웹 서버로 실행</strong>
+                    <ul>
+                        <li>❌ 파일 더블클릭 금지!</li>
+                        <li>✅ 터미널에서: <code>python -m http.server 8000</code></li>
+                        <li>✅ 브라우저: <code>http://localhost:8000</code></li>
+                    </ul>
+                </li>
+            </ol>
         </div>
-
-        <div id="documentContainer" class="document-container"></div>
+        
+        <div class="input-group">
+            <label>Google Apps Script API URL:</label>
+            <input type="text" 
+                   id="apiUrl" 
+                   placeholder="https://script.google.com/macros/s/YOUR_ID/exec"
+                   value="https://script.google.com/macros/s/AKfycbzkXNf3DFAqJWBzhIEEA3TM9gah1dPkL_Rd9EHcSmKxI_2dpmVpSdzxYKxPPdScyh4t/exec">
+        </div>
+        
+        <div class="input-group">
+            <label>Test Student ID:</label>
+            <input type="text" 
+                   id="studentId" 
+                   placeholder="2601001"
+                   value="2601001">
+        </div>
+        
+        <button onclick="testConnection()">🔍 Test Connection</button>
+        
+        <div id="result" class="result"></div>
     </div>
-
+    
     <script>
-        // 실제 Google Apps Script URL
-        const API_URL = 'https://script.google.com/macros/s/AKfycbzkXNf3DFAqJWBzhIEEA3TM9gah1dPkL_Rd9EHcSmKxI_2dpmVpSdzxYKxPPdScyh4t/exec';
-
-        function showMessage(message, type) {
-            const statusEl = document.getElementById('statusMessage');
-            statusEl.textContent = message;
-            statusEl.className = `status-message ${type}`;
-            statusEl.style.display = 'block';
-        }
-
-        function formatCurrency(amount) {
-            return '$' + parseFloat(amount).toFixed(2);
-        }
-
-        function formatDate() {
-            const date = new Date();
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return date.toLocaleDateString('ko-KR', options);
-        }
-
-        async function loadData() {
-            const idFrom = document.getElementById('idFrom').value.trim();
-            const idTo = document.getElementById('idTo').value.trim();
-
-            if (!idFrom || !idTo) {
-                showMessage('Please enter both Student ID (From) and (To)', 'error');
+        async function testConnection() {
+            const resultDiv = document.getElementById('result');
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+            const studentId = document.getElementById('studentId').value.trim();
+            
+            if (!apiUrl) {
+                showResult('error', '❌ Please enter API URL');
                 return;
             }
-
-            showMessage('Loading data...', 'info');
-            document.getElementById('documentContainer').innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading student data...</p></div>';
-
+            
+            if (!studentId) {
+                showResult('error', '❌ Please enter Student ID');
+                return;
+            }
+            
+            showResult('info', '📡 Testing connection...');
+            
             try {
-                const response = await fetch(`${API_URL}?action=getStudentRange&idFrom=${idFrom}&idTo=${idTo}`);
+                console.log('Testing URL:', apiUrl);
+                console.log('Student ID:', studentId);
+                
+                const testUrl = `${apiUrl}?action=getStudentRange&idFrom=${studentId}&idTo=${studentId}`;
+                console.log('Full URL:', testUrl);
+                
+                const response = await fetch(testUrl);
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-
+                
                 const data = await response.json();
-
+                console.log('Response data:', data);
+                
                 if (data.success && data.students && data.students.length > 0) {
-                    generateInvoices(data.students);
-                    showMessage(`✅ Successfully loaded ${data.students.length} student(s)`, 'success');
+                    const student = data.students[0];
+                    showResult('success', 
+                        `✅ Connection Successful!\n\n` +
+                        `Student Found:\n` +
+                        `- ID: ${student.id}\n` +
+                        `- Name: ${student.nameEn} / ${student.nameKh}\n` +
+                        `- Outstanding: $${student.outstanding || 0}\n\n` +
+                        `Full Response:`,
+                        JSON.stringify(data, null, 2)
+                    );
                 } else {
-                    showMessage(data.message || 'No students found', 'error');
-                    document.getElementById('documentContainer').innerHTML = '';
+                    showResult('error', 
+                        `⚠️ API Connected but No Student Found\n\n` +
+                        `Response:`,
+                        JSON.stringify(data, null, 2)
+                    );
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showMessage('❌ Error loading data: ' + error.message, 'error');
-                document.getElementById('documentContainer').innerHTML = '';
+                
+                let errorMessage = '❌ Connection Failed\n\n';
+                
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage += '🚨 CORS Error Detected!\n\n' +
+                        'Possible causes:\n' +
+                        '1. File opened directly (file:///)\n' +
+                        '   → Solution: Run with web server (python -m http.server 8000)\n\n' +
+                        '2. Google Apps Script not deployed as "Anyone"\n' +
+                        '   → Solution: Deploy → Who has access → Anyone\n\n' +
+                        '3. Wrong API URL\n' +
+                        '   → Solution: Check deployment URL in Apps Script';
+                } else {
+                    errorMessage += `Error: ${error.message}`;
+                }
+                
+                showResult('error', errorMessage);
             }
         }
-
-        function generateInvoices(students) {
-            const container = document.getElementById('documentContainer');
-            container.innerHTML = '';
-
-            students.forEach(student => {
-                const invoiceHTML = createInvoiceHTML(student);
-                container.innerHTML += invoiceHTML;
-            });
+        
+        function showResult(type, message, jsonData) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result ' + type;
+            
+            let html = message.replace(/\n/g, '<br>');
+            
+            if (jsonData) {
+                html += '<pre>' + jsonData + '</pre>';
+            }
+            
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
         }
-
-        function createInvoiceHTML(student) {
-            const fees = [
-                { label: 'Admission Fee / 입학금 / ថ្លៃចូលរៀន', due: student.admission, paid: student.admissionPaid },
-                { label: 'Year 1 - 1st Semester / 1학년 1학기 / ឆ្នាំទី១ ឆមាសទី១', due: student.year1_1st, paid: student.year1_1st_paid },
-                { label: 'Year 1 - 2nd Semester / 1학년 2학기 / ឆ្នាំទី១ ឆមាសទី២', due: student.year1_2nd, paid: student.year1_2nd_paid },
-                { label: 'Year 2 - 1st Semester / 2학년 1학기 / ឆ្នាំទី២ ឆមាសទី១', due: student.year2_1st, paid: student.year2_1st_paid },
-                { label: 'Year 2 - 2nd Semester / 2학년 2학기 / ឆ្នាំទី២ ឆមាសទី២', due: student.year2_2nd, paid: student.year2_2nd_paid },
-                { label: 'Year 3 - 1st Semester / 3학년 1학기 / ឆ្នាំទី៣ ឆមាសទី១', due: student.year3_1st, paid: student.year3_1st_paid },
-                { label: 'Year 3 - 2nd Semester / 3학년 2학기 / ឆ្នាំទី៣ ឆមាសទី២', due: student.year3_2nd, paid: student.year3_2nd_paid },
-                { label: 'Year 4 - 1st Semester / 4학년 1학기 / ឆ្នាំទី៤ ឆមាសទី១', due: student.year4_1st, paid: student.year4_1st_paid },
-                { label: 'Year 4 - 2nd Semester / 4학년 2학기 / ឆ្នាំទី៤ ឆមាសទី២', due: student.year4_2nd, paid: student.year4_2nd_paid },
-                { label: 'Re-Study Fees / 재수강료 / ថ្លៃសិក្សាម្តងទៀត', due: student.reStudyFees, paid: student.reStudyPaid }
-            ];
-
-            const nonZeroFees = fees.filter(fee => fee.due > 0);
-
-            const feeRows = nonZeroFees.map(fee => `
-                <tr>
-                    <td>${fee.label}</td>
-                    <td class="amount">${formatCurrency(fee.due)}</td>
-                    <td class="amount">${formatCurrency(fee.paid)}</td>
-                    <td class="amount">${formatCurrency(fee.due - fee.paid)}</td>
-                </tr>
-            `).join('');
-
-            return `
-                <div class="invoice-page">
-                    <div class="invoice-header">
-                        <div class="school-name">우정캄보디아 간호대학교</div>
-                        <div class="school-name-en">Woojung Cambodia Nursing University</div>
-                        <div class="document-title">청구서</div>
-                        <div class="document-title-en">School Fee Invoice</div>
-                        <div class="document-title-kh">វិក័យប័ត្របង់ថ្លៃសិក្សា</div>
-                    </div>
-
-                    <div class="invoice-date">
-                        Date / 발행일 / កាលបរិច្ឆេទ: ${formatDate()}
-                    </div>
-
-                    <div class="student-info">
-                        <div class="info-title">Student Information / 학생 정보 / ព័ត៌មានសិស្ស</div>
-                        <div class="info-row">
-                            <div class="info-label">Student ID / 학번:</div>
-                            <div class="info-value">${student.id}</div>
-                        </div>
-                        <div class="info-row">
-                            <div class="info-label">Name (KH) / 이름:</div>
-                            <div class="info-value">${student.nameKh}</div>
-                        </div>
-                        <div class="info-row">
-                            <div class="info-label">Name (EN) / 이름:</div>
-                            <div class="info-value">${student.nameEn}</div>
-                        </div>
-                    </div>
-
-                    <table class="fee-table">
-                        <thead>
-                            <tr>
-                                <th>Description / 항목 / ពណ៌នា</th>
-                                <th style="text-align: right;">Amount Due / 청구액</th>
-                                <th style="text-align: right;">Received / 수납액</th>
-                                <th style="text-align: right;">Balance / 미수금</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${feeRows}
-                        </tbody>
-                    </table>
-
-                    <div class="total-section">
-                        <div class="total-row">
-                            <span>Total Amount Due / 총 청구액:</span>
-                            <span>${formatCurrency(student.feeAmount)}</span>
-                        </div>
-                        <div class="total-row">
-                            <span>Total Received / 총 수납액:</span>
-                            <span>${formatCurrency(student.totalReceived)}</span>
-                        </div>
-                        <div class="total-row grand-total">
-                            <span>Balance Due / 미수금:</span>
-                            <span>${formatCurrency(student.outstanding)}</span>
-                        </div>
-                    </div>
-
-                    <div class="payment-info">
-                        <strong>Payment Instructions / 납부 안내:</strong><br>
-                        Please pay the balance due to the university cashier office.<br>
-                        미수금을 학교 회계처에 납부해 주시기 바랍니다.<br>
-                        សូមបង់ប្រាក់នៅសល់ទៅការិយាល័យគណនេយ្យរបស់សាកលវិទ្យាល័យ។
-                    </div>
-
-                    <div class="signature-section">
-                        <div class="signature-box">
-                            <div class="signature-line">
-                                Student Signature<br>
-                                학생 서명 / ហត្ថលេខាសិស្ស
-                            </div>
-                        </div>
-                        <div class="signature-box">
-                            <div class="signature-line">
-                                Authorized Signature<br>
-                                담당자 서명 / ហត្ថលេខាអ្នកទទួលខុសត្រូវ
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Enter 키 이벤트
-        document.getElementById('idFrom').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') loadData();
-        });
-        document.getElementById('idTo').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') loadData();
+        
+        // Check if file is opened directly
+        window.addEventListener('load', () => {
+            if (window.location.protocol === 'file:') {
+                showResult('error', 
+                    '⚠️ WARNING: File opened directly!\n\n' +
+                    'This will cause CORS errors.\n\n' +
+                    'Please run with web server:\n' +
+                    '1. Open terminal in this folder\n' +
+                    '2. Run: python -m http.server 8000\n' +
+                    '3. Open: http://localhost:8000/API_Test.html'
+                );
+            }
         });
     </script>
 </body>
